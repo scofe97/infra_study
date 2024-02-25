@@ -1,0 +1,47 @@
+Vagrant_API_Version="2"
+
+Vagrant.configure(Vagrant_API_Version) do |config|
+  # Jenkins 마스터 노드 설정
+  config.vm.define "jenkins-master" do |master|
+    master.vm.box = "generic/ubuntu2004"
+    master.vm.provider :virtualbox do |vb|
+      vb.name = "jenkins-master"
+      vb.cpus = 2
+      vb.memory = 4096
+    end
+    master.vm.hostname = "jenkins-master"
+    master.vm.synced_folder ".", "/vagrant"
+    master.vm.network "private_network", ip: "192.168.32.14"
+
+    # 마스터 노드 포트 포워딩: 지정된 포트만 설정
+    master.vm.network "forwarded_port", guest: 80, host: 40080, auto_correct: true
+    master.vm.network "forwarded_port", guest: 8080, host: 48080, auto_correct: true
+    master.vm.network "forwarded_port", guest: 8088, host: 48088, auto_correct: true
+    master.vm.network "forwarded_port", guest: 3000, host: 43000, auto_correct: true
+    master.vm.network "forwarded_port", guest: 9000, host: 49000, auto_correct: true
+    
+    master.vm.provision "shell", path: "sshd_config.sh"
+  end
+
+  # Jenkins 슬레이브 노드 설정
+  config.vm.define "jenkins-slave" do |slave|
+    slave.vm.box = "generic/ubuntu2004"
+    slave.vm.provider :virtualbox do |vb|
+      vb.name = "jenkins-slave"
+      vb.cpus = 1
+      vb.memory = 2048
+    end
+    slave.vm.hostname = "jenkins-slave"
+    slave.vm.synced_folder ".", "/vagrant"
+    slave.vm.network "private_network", ip: "192.168.32.15"
+
+    # 슬레이브 노드 포트 포워딩: 지정된 포트만 설정
+    slave.vm.network "forwarded_port", guest: 80, host: 50080, auto_correct: true
+    slave.vm.network "forwarded_port", guest: 8080, host: 58080, auto_correct: true
+    slave.vm.network "forwarded_port", guest: 8088, host: 58088, auto_correct: true
+    slave.vm.network "forwarded_port", guest: 3000, host: 53000, auto_correct: true
+    slave.vm.network "forwarded_port", guest: 9000, host: 59000, auto_correct: true
+    
+    slave.vm.provision "shell", path: "sshd_config.sh"
+  end
+end

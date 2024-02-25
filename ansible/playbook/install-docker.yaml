@@ -1,0 +1,37 @@
+---
+- name: Install Docker and Docker-compose
+  hosts: your_host_group
+  become: yes
+  tasks:
+    - name: Update apt repository and cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600 # Cache 유효 시간을 1시간으로 설정
+
+    - name: Install Docker.io
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ ansible_system }}-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: 'u+x,g+x'
+
+    - name: Add current user to the docker group
+      user:
+        name: "{{ ansible_user_id }}"
+        group: docker
+        append: yes
+
+    - name: Enable and start Docker service
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Set permissions for Docker socket
+      file:
+        path: /var/run/docker.sock
+        mode: '0666'

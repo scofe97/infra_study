@@ -1,0 +1,104 @@
+- name: Install and Configure Kubernetes Components
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+        state: present
+        update_cache: yes
+
+    - name: Add Kubernetes GPG key
+      ansible.builtin.apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Add Kubernetes repository
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list.d/kubernetes.list
+        line: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        create: yes
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install kubeadm, kubelet, and kubectl
+      apt:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
+
+    - name: Hold kubeadm, kubelet, and kubectl at their current version
+      ansible.builtin.dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
+
+    # Ensure Docker configuration directory exists
+    - name: Ensure Docker configuration directory exists
+      file:
+        path: /etc/docker
+        state: directory
+
+    # Configure Docker daemon
+    - name: Configure Docker daemon
+      copy:
+        dest: /etc/docker/daemon.json
+        content: |
+          {
+            "exec-opts": ["native.cgroupdriver=systemd"],
+            "log-driver": "json-file",
+            "log-opts": {
+              "max-size": "100m"
+            },
+            "storage-driver": "overlay2"
+          }
+      notify: Reload and restart Docker
+
+
+    # 여기서부터 기존파일과 다름
+    - name: Ensure containerd configuration directory exists
+      file:
+        path: /etc/containerd
+        state: directory
+
+    # Generate default containerd configuration
+    - name: Generate default containerd configuration
+      command: containerd config default
+      args:
+        chdir: /etc/containerd
+        creates: config.toml
+
+    # Restart containerd to apply new configuration
+    - name: Restart containerd to apply new configuration
+      systemd:
+        name: containerd
+        state: restarted
+        daemon_reload: yes
+
+    # Pull Kubernetes images
+    - name: Pull Kubernetes images
+      command: kubeadm config images pull
+
+  handlers:
+    - name: Reload and restart Docker
+      systemd:
+        name: docker
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Restart containerd
+      systemd:
+        name: containerd
+        state: restarted
+        daemon_reload: yes
