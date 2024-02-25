@@ -1,0 +1,33 @@
+# Created by https://www.toptal.com/developers/gitignore/api/vagrant,ansible,react
+# Edit at https://www.toptal.com/developers/gitignore?templates=vagrant,ansible,react
+
+### Ansible ###
+*.retry
+
+### react ###
+.DS_*
+*.log
+logs
+**/*.backup.*
+**/*.back.*
+
+node_modules
+bower_components
+
+*.sublime*
+
+psd
+thumb
+sketch
+
+### Vagrant ###
+# General
+.vagrant/
+
+# Log files (if you are creating logs in debug mode, uncomment this)
+# *.log
+
+### Vagrant Patch ###
+*.box
+
+# End of https://www.toptal.com/developers/gitignore/api/vagrant,ansible,react
