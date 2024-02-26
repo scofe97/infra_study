@@ -1,0 +1,38 @@
+---
+- name: 호스트 정보 수집 및 표시
+  hosts: all
+  tasks:
+    - name: 정보 수집
+      ansible.builtin.setup:
+
+    - name: 호스트명 표시
+      ansible.builtin.debug:
+        msg: "호스트명: {{ ansible_facts['hostname'] }}"
+
+    - name: 도메인 기반 호스트명 표시
+      ansible.builtin.debug:
+        msg: "FQDN: {{ ansible_facts['fqdn'] }}"
+
+    - name: 기본 IPv4 주소 표시
+      ansible.builtin.debug:
+        msg: "기본 IPv4 주소: {{ ansible_facts['default_ipv4']['address'] }}"
+
+    - name: 네트워크 인터페이스 목록 표시
+      ansible.builtin.debug:
+        msg: "네트워크 인터페이스: {{ ansible_facts['interfaces'] }}"
+
+    - name: /dev/vda1 디스크 파티션 크기 표시
+      ansible.builtin.debug:
+        msg: "/dev/vda1 파티션 크기: {{ ansible_facts['devices']['vda']['partitions']['vda1']['size'] }}"
+
+    - name: DNS 서버 목록 표시
+      ansible.builtin.debug:
+        msg: "DNS 서버: {{ ansible_facts['dns']['nameservers'] }}"
+
+    - name: 현재 실행 중인 커널 버전 표시
+      ansible.builtin.debug:
+        msg: "커널 버전: {{ ansible_facts['kernel'] }}"
+
+    - name: 운영체제 종류 표시
+      ansible.builtin.debug:
+        msg: "OS 분포: {{ ansible_facts['distribution'] }}"

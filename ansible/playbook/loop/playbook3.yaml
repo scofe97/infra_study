@@ -1,0 +1,15 @@
+---
+- name: Variable usage example playbook
+  hosts: all
+
+  tasks:
+    - name: 루프 에코 테스트
+      ansible.builtin.shell: "echo I can speack {{ item }}"
+      loop:
+      - Korean
+      - English
+      register: result
+
+    - name: result 보기
+      ansible.builtin.debug:
+        var: result

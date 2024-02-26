@@ -1,0 +1,12 @@
+---
+- name: 루프 테스트
+  hosts: all
+  tasks:
+    - name: 파일 여러개 만들기
+      file:
+        path: "/root/{{ item }}"
+        state: touch
+      loop:
+        - 'testfile1.txt'
+        - 'testfile2.txt'
+        - 'testfile3.txt'

@@ -1,0 +1,19 @@
+- hosts: all
+  force_handlers: yes
+
+  tasks:
+    - name: 임시 파일 생성1
+      ansible.builtin.copy:
+        content: "임시 파일 내용"
+        dest: "/tmp/test_handler1.txt"
+      notify:
+        - handler_debug
+
+    - name: 실패 작업 실행
+      ansible.builtin.fail:
+        msg: "이 작업은 실패합니다."
+
+  handlers:
+    - name: handler_debug
+      ansible.builtin.debug:
+        msg: "디버그 핸들러가 실행되었습니다."

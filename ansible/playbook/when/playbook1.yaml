@@ -1,0 +1,11 @@
+---
+- name: Simple true/false condition example
+  hosts: all
+  vars:
+    is_admin: true  # 이 값을 true 또는 false로 변경하여 테스트할 수 있습니다.
+  tasks:
+    - name: Create a user if is_admin is true
+      user:
+        name: "adminuser"
+        state: present
+      when: is_admin

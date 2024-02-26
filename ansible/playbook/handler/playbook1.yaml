@@ -1,0 +1,15 @@
+- hosts: all
+  tasks: 
+  - name: Install apache2
+    ansible.builtin.apt: # 우분투에서는 apt 모듈 사용
+      name: apache2 # apache2는 유효한 패키지이므로 이를 유지
+      state: latest
+  
+  - name: 강제 실패 작업
+    ansible.builtin.fail:
+      msg: "이 작업은 무조건 실패합니다."
+    ignore_errors: yes # 이 줄은 유지하여 에러를 무시하도록 설정
+  
+  - name: 이전 작업이 무시되었음을 출력
+    ansible.builtin.debug:
+      msg: "Before task is ignored"

@@ -1,0 +1,12 @@
+---
+# tasks file for apache_install
+- name: Update apt repo
+  ansible.builtin.apt:
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install apache2
+  ansible.builtin.apt:
+    name: apache2
+    state: present
+  when: ansible_facts['os_family'] == "Debian"

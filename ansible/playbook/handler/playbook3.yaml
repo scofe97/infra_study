@@ -1,0 +1,14 @@
+---
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: 체크 파일 존재 여부
+      ansible.builtin.shell: ls /path/to/your/file.txt
+      register: result
+      ignore_errors: true
+
+    - name: 조건에 따른 실패 처리
+      ansible.builtin.debug:
+        msg: "파일이 존재하지 않습니다."
+      failed_when: "No such file or directory in result.stderr"

@@ -1,0 +1,13 @@
+---
+- hosts: all
+
+  vars_files:
+  - /root/infra_study/ansible/vault/user.yaml
+
+  tasks:
+  - name: 유저 생성
+    ansible.builtin.user:
+      name: "{{ item.userid }}"
+      password: "{{ item.userpw | password_hash('sha512', 'mysecret') }}"
+      state: present
+    loop: "{{ user_info }}"

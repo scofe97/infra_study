@@ -1,0 +1,11 @@
+---
+- hosts: servers
+  tasks: 
+    - name: Create User {{ user }}
+      ansible.builtin.user:
+        name: "{{ user }}"
+        state: present
+
+    - name: Display debug message  # 이 부분이 추가되었습니다.
+      ansible.builtin.debug:
+        var: result

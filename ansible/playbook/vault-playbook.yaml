@@ -1,0 +1,10 @@
+---
+- hosts: all
+  vars_files:
+    - /root/infra_study/ansible/vault/mysecret.yaml
+
+  tasks: 
+    - name: Create User {{ user }}
+      ansible.builtin.user:
+        name: "{{ user }}"
+        state: present

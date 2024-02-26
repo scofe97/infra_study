@@ -1,0 +1,15 @@
+---
+- name: Variable usage example playbook
+  hosts: all
+  vars:
+    users:
+      - johndoe
+      - janedoe
+      - richardroe
+  tasks:
+    - name: 유저 생성
+      user:
+        name: "{{ item }}"
+        state: present
+        shell: /bin/bash
+      loop: "{{ users }}"

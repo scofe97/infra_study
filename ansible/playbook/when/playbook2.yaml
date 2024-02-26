@@ -1,0 +1,13 @@
+---
+- name: Playbook with multiple conditions
+  hosts: all
+  vars:
+    is_admin: true
+    is_active: true
+
+  tasks:
+    - name: Create a user if they are an admin and active
+      user:
+        name: "adminuser"
+        state: present
+      when: is_admin and is_active
