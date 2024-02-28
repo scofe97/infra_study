@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: harbor-registry
+  namespace: harbor
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/harbor/registry
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: harbor-chartmuseum
+  namespace: harbor
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/harbor/chartmuseum
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: harbor-jobservice
+  namespace: harbor
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/harbor/jobservice
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: harbor-database
+  namespace: harbor
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/harbor/database
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: harbor-redis
+  namespace: harbor
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/harbor/redis
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: harbor-trivy
+  namespace: harbor
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/harbor/trivy
