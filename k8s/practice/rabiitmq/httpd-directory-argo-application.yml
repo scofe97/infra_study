@@ -11,8 +11,8 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    repoURL: https://gitlab.myweb.io/jerry/test-stg.git
-    path: 03.httpd
+    repoURL: https://github.com/scofe97/cicd-web-project
+    path: httpd
     targetRevision: HEAD
     directory:
       recurse: true
