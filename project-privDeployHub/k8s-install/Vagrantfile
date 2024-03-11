@@ -1,0 +1,57 @@
+# 변수
+VAGRANT_BOX = "generic/ubuntu2204"
+domain = "kubernetes.lab"
+control_plane_endpoint = "k8s-master." + domain + ":6443"
+pod_network_cidr = "10.96.0.0/16"
+master_node_ip = "192.168.32.20"
+
+Vagrant.configure("2") do |config|
+  config.ssh.insert_key = false
+  
+  # 마스터/워커노드 공통 프로비저닝
+  config.vm.synced_folder ".", "/vagrant"
+  
+  # 마스터 노드 설정
+  config.vm.define "master" do |master|
+    master.vm.box = VAGRANT_BOX
+    master.vm.hostname = "k8s-master.#{domain}"
+    master.vm.network "private_network", ip: master_node_ip
+    master.vm.network "forwarded_port", guest: 80, host: 10080
+    master.vm.network "forwarded_port", guest: 8080, host: 18080
+    master.vm.network "forwarded_port", guest: 9000, host: 19000
+    master.vm.network "forwarded_port", guest: 3000, host: 13000
+    master.vm.network "forwarded_port", guest: 8088, host: 18088
+    
+    master.vm.disk :disk, size: "500GB", name: "master_disk1"
+    master.vm.disk :disk, size: "100GB", name: "master_disk2"
+
+    master.vm.provider "virtualbox" do |vb|
+      vb.memory = "8192"
+      vb.cpus = "3"
+      vb.customize ["modifyvm", :id, "--nic1", "nat"]
+    end
+    
+    master.vm.provision "shell", path: "sshd_config.sh"
+  end
+  
+
+  # 워커노드 설정
+  (1..2).each do |nodeIndex|
+    config.vm.define "worker-#{nodeIndex}" do |worker|
+      worker.vm.box = VAGRANT_BOX
+      worker.vm.hostname = "k8s-worker-#{nodeIndex}.#{domain}"
+      worker.vm.network "private_network", ip: "192.168.32.#{20+nodeIndex}"
+      
+      worker.vm.disk :disk, size: "100GB", name: "worker#{nodeIndex}_disk1"
+      worker.vm.disk :disk, size: "100GB", name: "worker#{nodeIndex}_disk2"
+
+      worker.vm.provider "virtualbox" do |vb|
+        vb.memory = "8192"
+        vb.cpus = "3"
+        vb.customize ["modifyvm", :id, "--nic1", "nat"]
+      end
+      
+      worker.vm.provision "shell", path: "sshd_config.sh"
+    end
+  end
+end
