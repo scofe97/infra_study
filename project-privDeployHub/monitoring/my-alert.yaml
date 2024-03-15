@@ -304,7 +304,7 @@ alertmanager:
       slack_api_url: '###'
     inhibit_rules:
       - source_matchers:
-          - 'severity = critical'
+          - 'severity = critical' 
         target_matchers:
           - 'severity =~ warning|info'
         equal:
