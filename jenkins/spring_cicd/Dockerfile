@@ -10,6 +10,9 @@ COPY jenkins/spring_cicd/gradlew .
 COPY jenkins/spring_cicd/build.gradle .
 COPY jenkins/spring_cicd/settings.gradle .
 
+# Give execution permission to the Gradle wrapper
+RUN chmod +x gradlew
+
 # Download the dependencies and configure Java toolchain
 RUN ./gradlew dependencies --no-daemon
 
