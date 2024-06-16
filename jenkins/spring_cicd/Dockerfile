@@ -5,16 +5,16 @@ FROM openjdk:21-jdk-slim AS build
 WORKDIR /app
 
 # Copy the Gradle wrapper and build files
-COPY gradle gradle
-COPY gradlew .
-COPY build.gradle .
-COPY settings.gradle .
+COPY jenkins/spring_cicd/gradle gradle
+COPY jenkins/spring_cicd/gradlew .
+COPY jenkins/spring_cicd/build.gradle .
+COPY jenkins/spring_cicd/settings.gradle .
 
 # Download the dependencies and configure Java toolchain
 RUN ./gradlew dependencies --no-daemon
 
 # Copy the source code
-COPY src src
+COPY jenkins/spring_cicd/src src
 
 # Build the application
 RUN ./gradlew build -x test --no-daemon
