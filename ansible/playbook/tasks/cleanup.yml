@@ -1,0 +1,22 @@
+---
+- name: "{{ service }} 서비스 중지 및 비활성화"
+  systemd:
+    name: "{{ service }}"
+    enabled: false
+    state: stopped
+
+- name: "{{ package }} 패키지 삭제"
+  package:
+    name: "{{ package }}"
+    state: absent
+
+- name: 방화벽 서비스 중지 및 비활성화
+  systemd:
+    name: "{{ firewall_svc }}"
+    enabled: false
+    state: stopped
+
+- name: 방화벽 패키지 삭제
+  package:
+    name: "{{ firewall_pkg }}"
+    state: absent

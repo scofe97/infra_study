@@ -1,0 +1,26 @@
+- name: 모든 호스트에 인사하기
+  hosts: servers
+  gather_facts: yes
+  become: no
+
+  tasks: 
+    - name: 인사 메시지 출력
+      shell:
+        cmd: echo "안녕하세요!"
+      tags:
+        - hello
+
+    
+    - name: 호스트 이름 출력
+      command:
+        cmd: hostname
+      tags:
+        - hello
+        - host
+
+    - name: 현재 시간 출력
+      command:
+        cmd: date
+      tags:
+        - hello
+        - time
