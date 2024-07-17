@@ -1,5 +1,0 @@
----
-- name: 루프 테스트
-  hosts: all
-  roles:
-  - my-role

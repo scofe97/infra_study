@@ -1,0 +1,29 @@
+---
+- name: GitLab 저장소 추가
+  shell: "curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash"
+
+- name: GitLab 설치
+  apt:
+    name: gitlab-ce=16.9.1-ce.0
+    state: present
+    allow_downgrade: yes 
+
+- name: GitLab 구성
+  template:
+    src: templates/gitlab.rb.j2
+    dest: /etc/gitlab/gitlab.rb
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Gitlab 재구성
+  command: gitlab-ctl reconfigure
+
+- name: Gitlab 재시작
+  command: gitlab-ctl restart
+
+- name: Change GitLab root password
+  shell: >
+    echo "user = User.where(id: 1).first; user.password = '{{ gitlab_root_password }}'; user.password_confirmation = '{{ gitlab_root_password }}'; user.save!" | gitlab-rails console -e production
+  args:
+    chdir: /opt/gitlab/embedded/service/gitlab-rails

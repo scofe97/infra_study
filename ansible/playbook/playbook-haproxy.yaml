@@ -1,0 +1,139 @@
+---
+- name: Install and configure HAProxy 2.0.33
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Update apt package index
+      apt:
+        update_cache: yes
+
+    - name: Install dependencies for HAProxy
+      apt:
+        name:
+          - build-essential
+          - libpcre3
+          - libpcre3-dev
+          - libssl-dev
+          - zlib1g-dev
+        state: present
+
+    - name: Download HAProxy 2.0.33
+      get_url:
+        url: http://www.haproxy.org/download/2.0/src/haproxy-2.0.33.tar.gz
+        dest: /tmp/haproxy-2.0.33.tar.gz
+
+    - name: Extract HAProxy tar.gz
+      ansible.builtin.unarchive:
+        src: /tmp/haproxy-2.0.33.tar.gz
+        dest: /tmp/
+        remote_src: yes
+
+    - name: Compile and install HAProxy
+      shell: 
+        make TARGET=linux-glibc USE_OPENSSL=1 USE_PCRE=1 USE_ZLIB=1 && make install
+      args:
+        chdir: /tmp/haproxy-2.0.33
+
+    - name: Copy HAProxy binary to /usr/local/sbin
+      copy:
+        src: /tmp/haproxy-2.0.33/haproxy
+        dest: /usr/local/sbin/haproxy
+        mode: '0755'
+        remote_src: yes
+
+    - name: Create HAProxy configuration directory
+      file:
+        path: /etc/haproxy
+        state: directory
+
+    - name: Create a basic HAProxy configuration file
+      copy:
+        dest: /etc/haproxy/haproxy.cfg
+        content: |
+          global
+              log /dev/log    local0
+              log /dev/log    local1 notice
+              chroot /var/lib/haproxy
+              stats socket /run/haproxy/admin.sock mode 660 level admin
+              stats timeout 30s
+              user haproxy
+              group haproxy
+              daemon
+
+          defaults
+              log     global
+              option  httplog
+              option  dontlognull
+              timeout connect 5000
+              timeout client  50000
+              timeout server  50000
+
+          frontend http-in
+              bind *:80
+              default_backend servers
+
+          backend servers
+              server server1 127.0.0.1:8000 maxconn 32
+
+    - name: Create haproxy user
+      user:
+        name: haproxy
+        shell: /bin/false
+
+    - name: Create systemd service file for HAProxy
+      copy:
+        dest: /etc/systemd/system/haproxy.service
+        content: |
+          [Unit]
+          Description=HAProxy Load Balancer
+          Documentation=man:haproxy(1)
+          Documentation=file:/usr/share/doc/haproxy/configuration.txt.gz
+          After=network-online.target rsyslog.service
+          Wants=network-online.target
+          
+          [Service]
+          EnvironmentFile=-/etc/default/haproxy
+          EnvironmentFile=-/etc/sysconfig/haproxy
+          Environment="CONFIG=/etc/haproxy/haproxy.cfg" "PIDFILE=/run/haproxy.pid" "EXTRAOPTS=-S /run/haproxy-master.sock"
+          ExecStartPre=/usr/local/sbin/haproxy -Ws -f $CONFIG -c -q $EXTRAOPTS
+          ExecStart=/usr/local/sbin/haproxy -Ws -f $CONFIG -p $PIDFILE $EXTRAOPTS
+          ExecReload=/usr/local/sbin/haproxy -Ws -f $CONFIG -c -q $EXTRAOPTS
+          ExecReload=/bin/kill -USR2 $MAINPID
+          KillMode=mixed
+          Restart=always
+          SuccessExitStatus=143
+          Type=notify
+          
+          # The following lines leverage SystemD's sandboxing options to provide
+          # defense in depth protection at the expense of restricting some flexibility
+          # in your setup (e.g. placement of your configuration files) or possibly
+          # reduced performance. See systemd.service(5) and systemd.exec(5) for further
+          # information.
+          
+          # NoNewPrivileges=true
+          # ProtectHome=true
+          # If you want to use 'ProtectSystem=strict' you should whitelist the PIDFILE,
+          # any state files and any other files written using 'ReadWritePaths' or
+          # 'RuntimeDirectory'.
+          # ProtectSystem=true
+          # ProtectKernelTunables=true
+          # ProtectKernelModules=true
+          # ProtectControlGroups=true
+          # If your SystemD version supports them, you can add: @reboot, @swap, @sync
+          # SystemCallFilter=~@cpu-emulation @keyring @module @obsolete @raw-io
+          
+          [Install]
+          WantedBy=multi-user.target
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable HAProxy service
+      systemd:
+        name: haproxy
+        enabled: yes
+
+    - name: Start HAProxy service
+      systemd:
+        name: haproxy
+        state: started
