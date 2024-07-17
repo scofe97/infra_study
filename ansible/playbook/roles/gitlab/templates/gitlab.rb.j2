@@ -1,6 +1,9 @@
 external_url 'http://localhost:8000'
 nginx['listen_port'] = 8000
 
+puma['listen'] = '127.0.0.1'
+puma['port'] = 8081
+
 gitlab_rails['gitlab_shell_version'] = '14.33.0'
 gitlab_workhorse['version'] = '16.9.1'
 gitlab_kas['version'] = '16.9.2'

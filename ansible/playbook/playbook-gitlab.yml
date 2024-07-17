@@ -1,11 +1,7 @@
 ---
-- name: MariaDB 설치 플레이북
+- name: GitLab 설치 플레이북
   gather_facts: yes
   become: yes
   hosts: servers
-  vars:
-    gitlab_root_password: "cloud1234"
-
   roles:
-    - common
     - gitlab

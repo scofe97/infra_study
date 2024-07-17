@@ -1,4 +1,15 @@
 ---
+- name: APT Update
+  apt:
+    update_cache: yes
+
+- name: 의존성 설치
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - openssh-server
+
 - name: GitLab 저장소 추가
   shell: "curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash"
 
@@ -22,7 +33,7 @@
 - name: Gitlab 재시작
   command: gitlab-ctl restart
 
-- name: Change GitLab root password
+- name: GitLab root계정 패스워드 변경
   shell: >
     echo "user = User.where(id: 1).first; user.password = '{{ gitlab_root_password }}'; user.password_confirmation = '{{ gitlab_root_password }}'; user.save!" | gitlab-rails console -e production
   args:
