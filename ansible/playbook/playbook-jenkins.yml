@@ -1,0 +1,52 @@
+---
+- name: Jenkins 설치 플레이북
+  gather_facts: no
+  become: yes
+
+  hosts: servers
+
+  tasks:
+    - name: APT 업데이트
+      apt:
+        update_cache: yes
+    
+    - name: 자바17 설치
+      apt:
+        name: openjdk-17-jre
+        state: present
+      
+    - name: 젠킨스 저장소 키 다운로드
+      get_url:
+        url: "https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key"
+        dest: "/usr/share/keyrings/jenkins-keyring.asc"
+        mode: '0644'
+    
+    - name: 젠킨스 저장소 추가
+      apt_repository: 
+        repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+        state: present
+        filename: jenkins
+
+    - name: APT 업데이트
+      apt:
+        update_cache: yes
+
+    - name: 젠킨스 설치
+      apt:
+        name: jenkins=2.426.1
+        state: present
+
+    - name: 젠킨스 시작
+      systemd:
+        name: jenkins
+        enabled: yes
+        state: started
+    
+    - name: admin 패스워드 변수확인
+      command: "cat /var/lib/jenkins/secrets/initialAdminPassword"
+      register: initial_admin_password
+    
+    - name: admin 패스워드 출력
+      debug:
+        msg: "패스워드 값 {{ initial_admin_password.stdout }}"
+`

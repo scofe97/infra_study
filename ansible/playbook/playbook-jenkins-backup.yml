@@ -1,0 +1,20 @@
+---
+- name: Jenkins 백업 플레이북
+  gather_facts: no
+  become: yes
+
+  hosts: servers
+  
+  tasks:
+    - name: Jenkins 데이터 백업
+      archive:
+        path: /var/lib/jenkins
+        dest: /tmp/jenkins_backup.tar.gz
+      tags: backup
+
+    - name: Jenkins 백업 파일 복사
+      fetch:
+        src: /tmp/jenkins_backup.tar.gz
+        dest: ./jenkins_backup.tar.gz
+        flat: yes
+      tags: backup
