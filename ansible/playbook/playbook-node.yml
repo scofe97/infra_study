@@ -11,67 +11,78 @@
   tasks:
     - name: 필수 패키지 설치
       apt:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - curl
-        - build-essential
+        name:
+          - curl
+          - build-essential
+          - xz-utils
 
     - name: Node.js 바이너리 다운로드
-      ansible.builtin.get_url:
+      get_url:
         url: "https://nodejs.org/dist/v{{ node_version }}/node-v{{ node_version }}-linux-x64.tar.xz"
         dest: "/tmp/node-v{{ node_version }}-linux-x64.tar.xz"
 
     - name: Node.js 바이너리 압축 해제
-      ansible.builtin.unarchive:
+      unarchive:
         src: "/tmp/node-v{{ node_version }}-linux-x64.tar.xz"
         dest: "/usr/local/"
         remote_src: yes
 
-    - name: Node.js 디렉토리명 변경
-      ansible.builtin.command:
-        cmd: mv /usr/local/node-v{{ node_version }}-linux-x64 /usr/local/node    
+    - name: Node.js 디렉토리명을 /usr/local로 변경
+      command:
+        cmd: mv /usr/local/node-v{{ node_version }}-linux-x64 /usr/local/node
 
-    - name: Node.js 경로 설정 스크립트 생성
-      ansible.builtin.copy:
-        dest: /etc/profile.d/nodejs.sh
-        content: |
-          export PATH=/usr/local/node/bin:$PATH
+    - name: Node.js 심볼릭 링크 설정
+      file:
+        src: /usr/local/node/bin/node
+        path: /usr/local/bin/node
+        state: link
+
+    - name: npm 심볼릭 링크 설정
+      file:
+        src: /usr/local/node/bin/npm
+        path: /usr/local/bin/npm
+        state: link
+
+    - name: npx 심볼릭 링크 설정
+      file:
+        src: /usr/local/node/bin/npx
+        path: /usr/local/bin/npx
+        state: link
 
     - name: Node.js 버전 확인
-      ansible.builtin.command:
-        cmd: /usr/local/node/bin/node -v
+      command:
+        cmd: /usr/bin/node/bin/node -v
       register: node_vsrn
 
     - name: Node.js 버전 출력
-      ansible.builtin.debug:
+      debug:
         msg: "Node.js version is {{ node_vsrn.stdout }}"
 
     - name: corepack 설치
-      ansible.builtin.command:
-        cmd: /usr/local/node/bin/npm install -g corepack
+      command:
+        cmd: /usr/bin/node/bin/npm install -g corepack
       environment:
-        PATH: "/usr/local/node/bin:{{ ansible_env.PATH }}"
+        PATH: "/usr/bin/node/bin:{{ ansible_env.PATH }}"
 
     - name: Yarn Berry 활성화
-      ansible.builtin.command:
-        cmd: /usr/local/node/bin/corepack enable yarn
+      command:
+        cmd: /usr/bin/node/bin/corepack enable yarn
       environment:
-        PATH: "/usr/local/node/bin:{{ ansible_env.PATH }}"
+        PATH: "/usr/bin/node/bin:{{ ansible_env.PATH }}"
 
     - name: Yarn 설치
-      ansible.builtin.command:
-        cmd: /usr/local/node/bin/yarn set version {{ yarn_version }}
+      command:
+        cmd: /usr/bin/node/bin/yarn set version {{ yarn_version }}
       environment:
-        PATH: "/usr/local/node/bin:{{ ansible_env.PATH }}"
+        PATH: "/usr/bin/node/bin:{{ ansible_env.PATH }}"
 
     - name: Yarn 설치 확인
-      ansible.builtin.command:
-        cmd: /usr/local/node/bin/yarn -v
+      command:
+        cmd: /usr/bin/node/bin/yarn -v
       register: yarn_vsrn
       environment:
-        PATH: "/usr/local/node/bin:{{ ansible_env.PATH }}"
+        PATH: "/usr/bin/node/bin:{{ ansible_env.PATH }}"
 
     - name: Yarn 버전 출력
-      ansible.builtin.debug:
+      debug:
         msg: "Yarn version is {{ yarn_vsrn.stdout }}"

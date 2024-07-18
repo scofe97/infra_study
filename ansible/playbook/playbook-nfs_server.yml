@@ -1,0 +1,41 @@
+---
+- name: NFS 서버 설정
+  gather_facts: yes
+  become: yes
+
+  hosts: servers
+
+  vars_files:
+    - vars/vars_nfs.yml
+
+  tasks:
+    - name: NFS 패키지 설치
+      apt:
+        update_cache: yes
+        name: 
+          - nfs-common
+          - nfs-kernel-server
+          - rpcbind
+          - portmap
+        state: present
+    
+    - name: 공유 디렉토리 생성 및 권한 설정
+      file:
+        path: "{{ nfs_export }}"
+        state: directory
+        mode: "0777"
+
+    - name: /etc/exports 파일 수정
+      lineinfile:
+        path: /etc/exports
+        line: "{{ nfs_export }} *(rw,sync,no_subtree_check)"
+        create: yes
+
+    - name: NFS 설정 적용
+      command: exportfs -a
+
+    - name: NFS 서버 서비스 재시작
+      systemd:
+        name: nfs-kernel-server
+        enabled: yes
+        state: restarted
