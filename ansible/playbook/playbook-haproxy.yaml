@@ -1,6 +1,6 @@
 ---
 - name: Install and configure HAProxy 2.0.33
-  hosts: localhost
+  hosts: all
   become: yes
   tasks:
     - name: Update apt package index
@@ -95,9 +95,9 @@
           EnvironmentFile=-/etc/default/haproxy
           EnvironmentFile=-/etc/sysconfig/haproxy
           Environment="CONFIG=/etc/haproxy/haproxy.cfg" "PIDFILE=/run/haproxy.pid" "EXTRAOPTS=-S /run/haproxy-master.sock"
-          ExecStartPre=/usr/local/sbin/haproxy -Ws -f $CONFIG -c -q $EXTRAOPTS
-          ExecStart=/usr/local/sbin/haproxy -Ws -f $CONFIG -p $PIDFILE $EXTRAOPTS
-          ExecReload=/usr/local/sbin/haproxy -Ws -f $CONFIG -c -q $EXTRAOPTS
+          ExecStartPre=/usr/sbin/haproxy -Ws -f $CONFIG -c -q $EXTRAOPTS
+          ExecStart=/usr/sbin/haproxy -Ws -f $CONFIG -p $PIDFILE $EXTRAOPTS
+          ExecReload=/usr/sbin/haproxy -Ws -f $CONFIG -c -q $EXTRAOPTS
           ExecReload=/bin/kill -USR2 $MAINPID
           KillMode=mixed
           Restart=always

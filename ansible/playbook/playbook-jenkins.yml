@@ -49,4 +49,11 @@
     - name: admin 패스워드 출력
       debug:
         msg: "패스워드 값 {{ initial_admin_password.stdout }}"
-`
+
+    - name: 초기 admin 패스워드 파일에 저장
+      copy:
+        content: "{{ initial_admin_password.stdout }}"
+        dest: "/root/initial_admin_password.txt"
+        owner: root
+        group: root
+        mode: '0600'
