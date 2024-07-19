@@ -28,7 +28,7 @@
     - name: /etc/exports 파일 수정
       lineinfile:
         path: /etc/exports
-        line: "{{ nfs_export }} *(rw,sync,no_subtree_check)"
+        line: "{{ nfs_export }} 192.168.32.0/24(rw,sync,no_subtree_check)"
         create: yes
 
     - name: NFS 설정 적용

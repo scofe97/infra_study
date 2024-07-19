@@ -22,26 +22,11 @@
         group: root
         mode: '0755'
   
-    - name: "/etc/fstab에 NFS 마운트 추가"
+    - name: "/etc/fstab에 NFS 마운트 정보 추가 및 마운트 실행"
       mount:
-        src: "{{ nfs_server_name }}:{{ nfs_export }}"
+        src: "{{ nfs_server }}:{{ nfs_export_path }}"
         path: "{{ mount_point }}"
         fstype: nfs
         opts: defaults
-        state: present
-
-    - name: NFS 공유 디렉토리 마운트
-      command: mount "{{ mount_point }}"
-      register: mount_result
-      failed_when: mount_result.rc not in [0, 32]
-
-    - name: NFS 마운트 확인
-      shell: mountpoint -q "{{ mount_point }}"
-      register: mountpoint_check
-      changed_when: no
-      failed_when: mountpoint_check.rc != 0
-
-    - name: NFS 마운트 상태 출력
-      debug:
-        msg: "NFS mount point {{ mount_point }} is properly mounted"
-      when: mountpoint_check.rc == 0
+        state: mounted
+      become: true
