@@ -3,7 +3,7 @@
   gather_facts: yes
   become: yes
 
-  hosts: servers
+  hosts: managed
 
   vars_files:
     - vars/vars_nfs.yml
@@ -27,6 +27,6 @@
         src: "{{ nfs_server }}:{{ nfs_export_path }}"
         path: "{{ mount_point }}"
         fstype: nfs
-        opts: defaults
+        opts: rw,sync
         state: mounted
       become: true

@@ -1,3 +1,3 @@
-nfs_server: "172.10.40.216"
-nfs_export: "/mnt/shared"
+nfs_server: "192.168.32.20"
+nfs_export_path: "/mnt/shared"
 mount_point: "/mnt/shared"
