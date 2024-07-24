@@ -1,0 +1,24 @@
+include         {{ install_dir }}/etc/openldap/schema/core.schema
+include         {{ install_dir }}/etc/openldap/schema/cosine.schema
+include         {{ install_dir }}/etc/openldap/schema/inetorgperson.schema
+
+pidfile         {{ install_dir }}/var/run/slapd.pid
+argsfile        {{ install_dir }}/var/run/slapd.args
+
+modulepath      {{ install_dir }}/libexec/openldap
+moduleload      back_mdb.la
+
+database        mdb
+maxsize         1073741824
+suffix          "dc=my-domain,dc=com"
+rootdn          "{{ rootdn }}"
+rootpw          "{{ rootpw }}"
+directory       "{{ install_dir }}/var/openldap-data"
+index           objectClass     eq
+
+access to dn.base="" by * read
+access to dn.base="cn=Subschema" by * read
+access to *
+    by self write
+    by users read
+    by anonymous auth
