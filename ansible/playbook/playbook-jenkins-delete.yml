@@ -1,0 +1,26 @@
+---
+- name: Jenkins 백업 플레이북
+  gather_facts: no
+  become: yes
+
+  hosts: servers
+  
+  tasks:
+    - name: Jenkins 서비스 중지
+      systemd:
+        name: jenkins
+        state: stopped
+      tags: remove
+
+    - name: Jenkins 패키지 제거
+      apt:
+        name: jenkins
+        state: absent
+        purge: yes
+      tags: remove
+
+    - name: Jenkins 홈 디렉토리 제거
+      file:
+        path: /var/lib/jenkins
+        state: absent
+      tags: remove

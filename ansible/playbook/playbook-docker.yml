@@ -1,0 +1,51 @@
+---
+- name: Docker 설치 플레이북
+  gather_facts: yes
+  become: yes
+
+  hosts: servers
+
+  tasks:
+    - name: APT update
+      apt:
+        update_cache: yes
+    
+    - name: 필요 패키지 설치
+      apt:
+        update_cache: yes
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+    
+    - name: Docker GPG 키 추가
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    
+    - name: Docker 저장소 추가
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+    
+    - name: APT 업데이트
+      apt:
+        update_cache: yes
+
+    - name: Docker 설치
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Docker Compose 설치
+      shell: >
+        curl -sSL https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
+      args:
+        creates: /usr/local/bin/docker-compose
+
+    - name: 도커 시작
+      systemd:
+        name: docker
+        state: started
+        enabled: yes

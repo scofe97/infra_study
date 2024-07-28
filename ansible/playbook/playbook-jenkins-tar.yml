@@ -1,0 +1,69 @@
+---
+- name: Jenkins 복원 플레이북
+  become: yes
+  vars:
+    jenkins_backup_src: ./jenkins_backup.tar.gz
+    jenkins_home: /var/lib/jenkins
+
+  hosts: servers
+
+  tasks:
+    - name: APT 업데이트
+      apt:
+        update_cache: yes
+
+    - name: 자바17 설치
+      apt:
+        name: openjdk-17-jre
+        state: present
+
+    - name: 젠킨스 설치
+      apt_key:
+        url: "https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key"
+        state: present
+    
+    - name: 젠킨스 저장소 추가
+      apt_repository: 
+        repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+        state: present
+        filename: jenkins
+
+    - name: APT 업데이트
+      apt:
+        update_cache: yes
+
+    - name: 젠킨스 설치
+      apt:
+        name: jenkins
+        state: present
+
+    - name: Jenkins 서비스 중지
+      systemd:
+        name: jenkins
+        state: stopped
+
+    - name: Jenkins 홈 디렉토리 정리
+      file:
+        path: "{{ jenkins_home }}"
+        state: absent
+        force: yes
+
+    - name: Jenkins 홈 디렉토리 생성
+      file:
+        path: "{{ jenkins_home }}"
+        state: directory
+        owner: jenkins
+        group: jenkins
+        mode: '0755'
+
+    - name: Jenkins 데이터 복원
+      unarchive:
+        src: /tmp/jenkins_backup.tar.gz
+        dest: "{{ jenkins_home }}"
+        extra_opts: [--strip-components=1]
+
+    - name: Jenkins 서비스 시작
+      systemd:
+        name: jenkins
+        enabled: yes
+        state: started

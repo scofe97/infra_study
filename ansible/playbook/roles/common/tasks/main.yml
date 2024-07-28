@@ -1,0 +1,12 @@
+---
+# tasks file for role/common
+- name: APT Update
+  apt:
+    update_cache: yes
+
+- name: 의존성 설치
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - openssh-server

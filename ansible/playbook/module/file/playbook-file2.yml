@@ -1,0 +1,20 @@
+- name: 파일 링크
+  hosts: servers
+  gather_facts: yes
+  become: no
+
+  tasks: 
+    - name: 심볼릭 링크 생성
+      file:
+        src: /tmp/example.txt
+        path: /tmp/example_link.txt
+        state: link
+    
+    - name: 심볼릭 링크 확인
+      stat:
+        path: /tmp/example_link.txt
+      register: link_info
+
+    - name: 출력 - 링크 정보
+      debug:
+        msg: "심볼릭 링크가 존재 대상: {{ link_info.stat.lnk_target}}"

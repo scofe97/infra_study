@@ -1,0 +1,70 @@
+---
+- name: MariaDB 설치 플레이북
+  gather_facts: yes
+  become: yes
+  hosts: servers
+
+  vars_files:
+    - vars/vars_mariadb.yml
+
+  tasks:
+    - name: APT 업데이트
+      apt:
+        update_cache: yes
+        
+    - name: 필요한 Python 패키지 설치
+      apt:
+        name: python3-pymysql
+        state: present
+
+    - name: MariaDB APT Key 추가
+      apt_key:
+        url: https://mariadb.org/mariadb_release_signing_key.asc
+        state: present
+    
+    - name: MariaDb 저장소 설치
+      apt_repository:
+        repo: "deb [arch=amd64,arm64,ppc64el] http://mirror.mariadb.org/repo/{{ mariadb_version }}/ubuntu {{ ansible_distribution_release }} main"
+        state: present
+
+    - name: APT 업데이트
+      apt:
+        update_cache: yes
+
+    - name: MariaDB 서버 & 클라이언트 설치
+      apt:
+        name:
+          - mariadb-server
+          - mariadb-client
+        state: present
+
+    - name: MariaDb 서비스 시작
+      systemd:
+        name: mariadb
+        enabled: yes
+        state: started
+
+    - name: MariaDB 루트계정 패스워드 변경
+      mysql_user:
+        name: root
+        password: "{{ root_db_password }}"
+        host_all: yes
+        state: present
+        update_password: always
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        column_case_sensitive: false  
+    
+    - name: 익명 유저 제거
+      mysql_user:
+        name: ''
+        host_all: yes
+        state: absent
+        login_user: root
+        login_password: "{{ root_db_password }}"
+
+    - name: 테스트 데이터베이스 제거
+      mysql_db:
+        name: test
+        state: absent
+        login_user: root
+        login_password: "{{ root_db_password }}"

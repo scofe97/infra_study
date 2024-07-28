@@ -1,0 +1,71 @@
+---
+- name: Node.js & Yarn 설치 플레이북
+  gather_facts: yes
+  become: yes
+  
+  hosts: servers
+
+  vars_files:
+    - vars/vars_node.yml
+
+  tasks:
+    - name: 필수 패키지 설치
+      apt:
+        name:
+          - curl
+          - build-essential
+          - xz-utils
+        state: present
+        update_cache: yes
+
+    - name: Node.js 바이너리 다운로드
+      get_url:
+        url: "https://nodejs.org/dist/v{{ node_version }}/node-v{{ node_version }}-linux-x64.tar.xz"
+        dest: "/tmp/node-v{{ node_version }}-linux-x64.tar.xz"
+
+    - name: Node.js 바이너리 압축 해제
+      unarchive:
+        src: "/tmp/node-v{{ node_version }}-linux-x64.tar.xz"
+        dest: "/usr/local/"
+        remote_src: yes
+
+    - name: Node.js 디렉토리명을 /usr/local로 변경
+      command: mv /usr/local/node-v{{ node_version }}-linux-x64 /usr/local/node
+      args:
+        creates: /usr/local/node
+
+    - name: 심볼릭 링크 설정
+      file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        state: link
+      loop:
+        - { src: '/usr/local/node/bin/node', dest: '/usr/local/bin/node' }
+        - { src: '/usr/local/node/bin/npm', dest: '/usr/local/bin/npm' }
+        - { src: '/usr/local/node/bin/npx', dest: '/usr/local/bin/npx' }
+        - { src: '/usr/local/node/bin/corepack', dest: '/usr/local/bin/corepack' }
+
+
+    - name: Node.js 버전 확인
+      command: node -v
+      register: node_version_output
+      environment:
+        PATH: "/usr/local/node/bin:{{ ansible_env.PATH }}"
+
+    - name: Node.js 버전 출력
+      debug:
+        msg: "Node.js version is {{ node_version_output.stdout }}"
+
+    - name: Yarn Berry 활성화
+      command: corepack enable yarn
+
+    - name: Yarn 버전 수정
+      command: yarn set version {{ yarn_version }}
+
+    - name: Yarn 설치 확인
+      command: yarn -v
+      register: yarn_version_output
+
+    - name: Yarn 버전 출력
+      debug:
+        msg: "Yarn version is {{ yarn_version_output.stdout }}"

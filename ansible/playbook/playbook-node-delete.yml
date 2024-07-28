@@ -1,0 +1,55 @@
+---
+- name: Node.js 및 관련 파일 제거 플레이북
+  gather_facts: yes
+  become: yes
+
+  hosts: servers
+
+  tasks:
+    - name: Node.js 디렉토리 제거
+      ansible.builtin.file:
+        path: /usr/local/node
+        state: absent
+
+    - name: Node.js 심볼릭 링크 제거
+      ansible.builtin.file:
+        path: /usr/local/bin/node
+        state: absent
+
+    - name: npm 심볼릭 링크 제거
+      ansible.builtin.file:
+        path: /usr/local/bin/npm
+        state: absent
+
+    - name: npx 심볼릭 링크 제거
+      ansible.builtin.file:
+        path: /usr/local/bin/npx
+        state: absent
+
+    - name: corepack 심볼릭 링크 제거
+      ansible.builtin.file:
+        path: /usr/local/bin/corepack
+        state: absent
+
+    - name: Yarn 심볼릭 링크 제거
+      ansible.builtin.file:
+        path: /usr/local/bin/yarn
+        state: absent
+
+    - name: /etc/profile에서 Node.js 경로 제거
+      ansible.builtin.lineinfile:
+        path: /etc/profile
+        line: 'export PATH=/usr/local/node/bin:$PATH'
+        state: absent
+
+    - name: 프로필 파일 다시 로드
+      ansible.builtin.shell:
+        cmd: ". /etc/profile"
+
+    - name: 확인을 위한 PATH 환경 변수 출력
+      ansible.builtin.shell: echo $PATH
+      register: path_var
+
+    - name: PATH 환경 변수 출력
+      ansible.builtin.debug:
+        msg: "PATH environment variable is {{ path_var.stdout }}"

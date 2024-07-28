@@ -1,0 +1,58 @@
+- name: 파일 링크
+  hosts: servers
+  gather_facts: yes
+  become: no
+
+  vars:
+    hostname: myserver
+    ip_address: 192.168.1.100
+
+  tasks: 
+    - name: Ansible 서버 파일 복사
+      copy:
+        src: "/tmp/example.txt"
+        dest: "/tmp/example_copy.txt"
+        mode: '0644'
+        owner: root
+        group: root
+        
+
+    - name: Ansible 서버 디렉토리 복사
+      copy:
+        src: "/tmp/dir1"
+        dest: "/tmp/dir1_copy"
+        mode: '0644'
+        owner: root
+        group: root
+        
+
+    # backup(원본 파일이 다른경우 백업파일 생성)
+    - name: 파일 복사전에 백업
+      copy:
+        src: "/tmp/example.txt"
+        dest: "/tmp/example_copy2.txt"
+        backup: yes
+
+    # fail_on_missing(파일이 없는경우 실패여부)
+    - name: 원격 호스트에서 파일 가져오기
+      fetch:
+        src: "/tmp/example_copy.txt"
+        dest: "/tmp/example_fetch1.txt"
+        fail_on_missing: yes
+
+
+    # # flat(하위 경로 복사여부)
+    # - name: 원격 호스트에서 폴더 가져오기
+    #   fetch:
+    #     src: "/tmp/dir1/"
+    #     dest: "/tmp/dir1_copy_copy/"
+    #     flat: no 
+
+    - name: 
+      template:
+        src: /tmp/template.j2
+        dest: /tmp/template_copy.txt
+        mode: '0644'
+        owner: root
+        group: root
+        backup: yes

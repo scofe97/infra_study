@@ -1,0 +1,38 @@
+- name: 파일 생성 테스트
+  hosts: servers
+  gather_facts: yes
+  become: no
+
+  tasks: 
+    # state: touch(파일)
+    - name: 빈 파일 생성
+      file:
+        path: /tmp/example.txt
+        state: touch
+        mode: 0644
+
+
+    # state: directory(폴더)
+    - name: 디렉토리 생성
+      file:
+        path: /tmp/example_dir
+        state: directory
+        mode: 0644
+
+    # 상위 디렉토리가 없어도 생성된다.
+    - name: 여러 디렉토리 생성
+      ansible.builtin.file:
+        path: /tmp/dir1/dir2/dir3
+        state: directory
+        mode: '0755'
+
+    # state: absent(제거)
+    - name: 파일 삭제
+      file:
+        path: /tmp/example.txt
+        state: absent
+
+    - name: 디렉토리 삭제
+      file:
+        path: /tmp/example_dir
+        state: absent

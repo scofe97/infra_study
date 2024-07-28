@@ -1,0 +1,10 @@
+- name: "{{ package }} 패키지 설치"
+  package:
+    name: "{{ package }}"
+    state: latest
+
+- name: "{{ service }} 서비스 시작 및 활성화"
+  systemd:
+    name: "{{ service }}"
+    enabled: true
+    state: started

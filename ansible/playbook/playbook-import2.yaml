@@ -1,0 +1,6 @@
+- name: 주 플레이북
+  hosts: servers
+
+  tasks:
+    - import_tasks: task.yaml
+

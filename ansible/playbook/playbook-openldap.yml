@@ -1,0 +1,100 @@
+---
+- name: OpenLDAP 설치 플레이북
+  gather_facts: yes
+  become: yes
+  
+  hosts: servers
+
+  vars:
+    openldap_version: "2.6.6"
+    openldap_url: "https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-{{ openldap_version }}.tgz"
+    install_dir: "/opt/openldap-{{ openldap_version }}"
+    tmp_dir: "/tmp/openldap-{{ openldap_version }}"
+    slapd_port: 389  # 기본 LDAP 포트
+    rootdn: "cn=admin,dc=my-domain,dc=com"
+    rootpw: "{SSHA}eW91cnBhc3N3b3JkaGVyZQ=="  # 생성한 SSHA 해시된 비밀번호
+    
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install dependencies
+      apt:
+        name:
+          - build-essential
+          - libssl-dev
+          - libsasl2-dev
+          - libdb-dev
+          - libltdl-dev
+          - libperl-dev
+        state: present
+
+    - name: Download OpenLDAP
+      get_url:
+        url: "{{ openldap_url }}"
+        dest: "{{ tmp_dir }}.tgz"
+
+    - name: Extract OpenLDAP archive
+      unarchive:
+        src: "{{ tmp_dir }}.tgz"
+        dest: "/tmp"
+        remote_src: yes
+
+    - name: Configure OpenLDAP
+      command:
+        cmd: "./configure --prefix={{ install_dir }} --enable-slapd=yes"
+        chdir: "{{ tmp_dir }}"
+
+    - name: Compile OpenLDAP
+      shell: |
+        make depend
+        make
+      args:
+        chdir: "{{ tmp_dir }}"
+
+    - name: Install OpenLDAP
+      command:
+        cmd: "make install"
+        chdir: "{{ tmp_dir }}"
+
+    - name: Copy slapd.conf template
+      template:
+        src: templates/slapd.conf.j2
+        dest: "{{ install_dir }}/etc/openldap/slapd.conf"
+
+    - name: Create systemd service file
+      template:
+        src: templates/slapd.service.j2
+        dest: /etc/systemd/system/slapd.service
+      notify:
+        - Reload systemd
+        - Restart slapd
+    
+    - name: Check if slapd.service exists
+      stat:
+        path: /etc/systemd/system/slapd.service
+      register: slapd_service_file
+
+    - name: Debug slapd.service file path
+      debug:
+        msg: "slapd.service file exists: {{ slapd_service_file.stat.exists }}"
+
+    - name: Check capabilities of slapd binary
+      command: getcap {{ install_dir }}/libexec/slapd
+      register: slapd_capabilities
+
+    - name: Debug slapd binary capabilities
+      debug:
+        msg: "slapd binary capabilities: {{ slapd_capabilities.stdout }}"
+
+  handlers:
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+
+    - name: Restart slapd
+      systemd:
+        name: slapd
+        state: restarted
+        enabled: yes

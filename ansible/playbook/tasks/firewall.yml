@@ -1,0 +1,18 @@
+- name: 방화벽 소프트웨어 설치
+  package: 
+    name: "{{ firewall_pkg }}"
+    state: latest
+
+- name: 방화벽 서비스 시작 및 활성화
+  systemd:
+    name: "{{ firewall_svc }}"
+    enabled: true
+    state: started
+
+- name: "{{ rule}} 포트 열기"
+  firewalld:
+    service: "{{ rule }}"
+    immediate: yes
+    permanent: yes
+    state: enabled
+    zone: public

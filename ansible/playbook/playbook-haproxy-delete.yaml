@@ -1,0 +1,22 @@
+---
+- name: Uninstall HAProxy 2.0.33 and remove configurations
+  hosts: localhost
+  become: yes
+  tasks:
+
+
+    - name: Uninstall dependencies for HAProxy with force
+      apt:
+        name:
+          - build-essential
+          - libpcre3
+          - libpcre3-dev
+          - libssl-dev
+          - zlib1g-dev
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    - name: Update apt package index
+      apt:
+        update_cache: yes

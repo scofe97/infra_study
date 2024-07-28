@@ -1,0 +1,9 @@
+---
+- name: 웹 서버 테스트
+  hosts: localhost
+  become: no
+  tasks:
+    - name: 인터넷 웹 서버 연결 테스트
+      uri:
+        url: "{{ url }}"
+        status_code: 200

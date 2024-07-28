@@ -1,0 +1,2 @@
+- name: 주 플레이북
+  import_playbook: playbook-children.yaml

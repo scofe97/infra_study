@@ -1,0 +1,38 @@
+---
+- name: Remove GitLab
+  hosts: all
+  become: yes
+  tasks:
+    - name: GitLab 정지
+      command: gitlab-ctl stop
+      ignore_errors: yes
+
+    - name: GitLab 패키지 삭제
+      apt:
+        name: gitlab-ce
+        state: absent
+        autoremove: yes
+
+    - name: GitLab 설정 및 데이터 제거
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /etc/gitlab
+        - /var/log/gitlab
+        - /var/opt/gitlab
+        - /opt/gitlab
+        - /var/log/gitlab
+        - /var/log/gitlab-monitor
+        - /var/log/gitlab-ctl
+        - /var/lib/gitlab
+        - /etc/default/gitlab
+
+    - name: GitLab 서비스 재시작
+      command: systemctl restart gitlab-runsvdir
+
+    - name: GitLab 패키지 자동 업데이트 비활성화
+      shell: echo 'gitlab-ce hold' | dpkg --set-selections
+
+    - name: GitLab 패키지 저장소 제거
+      shell: rm /etc/apt/sources.list.d/gitlab_gitlab-ce.list

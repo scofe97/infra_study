@@ -1,0 +1,28 @@
+- hosts: servers
+
+  # strategy
+  # linear(기본값): 모든 호스트에서 각 태스크 순차실행
+  # free: 각 호스트에서 가능한 빨리 실행
+  strategy: free
+  
+  # serial: 동시에 수행되는 호스트 수
+  serial: 2
+
+  tasks:
+    - name: 인사
+      debug:
+        msg: "안녕하세요"
+
+    # throttle: 특정 task의 호스트 실행제한
+    - name: 인사2
+      debug:
+        msg: "안녕하세요2"
+      throttle: 3
+
+    # async: 작업이 완료될때까지 기다리지 않고 백그라운드 실행
+    # poll: 작업의 완료 상태 주기적으로 확인
+    - name: 인사3
+      debug:
+        msg: "안녕하세요3"
+      async: 60
+      poll: 5

@@ -1,0 +1,4 @@
+- name: 웹사이트 플레이스홀더 파일 생성
+  copy:
+    content: "{{ ansible_facts['fqdn'] }} has been customized using Ansible. \n"
+    dest: "{{ file }}"

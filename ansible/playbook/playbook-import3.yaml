@@ -1,0 +1,41 @@
+# 메인 마스터 플레이북 파일
+---
+- name: 웹 서버 구성
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: 환경 설정 태스크 파일 가져오기 및 변수 설정
+      import_tasks: tasks/environment.yml
+      vars:
+        package: apache2
+        service: apache2
+
+    - name: 방화벽 설정 태스크 파일 가져오기 및 변수 설정
+      import_tasks: tasks/firewall.yml
+      vars:
+        firewall_pkg: firewalld
+        firewall_svc: firewalld
+        rule: http
+
+    - name: 플레이스홀더 파일 생성 태스크 파일 가져오기 및 변수 설정
+      import_tasks: tasks/placeholder.yml
+      vars:
+        file: /var/www/html/index.html
+
+- name: 웹 서버 테스트 플레이북 가져오기 및 변수 설정
+  import_playbook: test.yml
+  vars:
+    url: 'http://localhost'
+
+
+- name: 서비스 삭제 및 정리 태스크 가져오기
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: 서비스 삭제 태스크 파일 가져오기 및 변수 설정
+      import_tasks: tasks/cleanup.yml
+      vars:
+        package: apache2
+        service: apache2
+        firewall_pkg: firewalld
+        firewall_svc: firewalld

@@ -1,0 +1,7 @@
+---
+- name: GitLab 설치 플레이북
+  gather_facts: yes
+  become: yes
+  hosts: servers
+  roles:
+    - gitlab
