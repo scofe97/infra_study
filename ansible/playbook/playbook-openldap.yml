@@ -3,16 +3,16 @@
   gather_facts: yes
   become: yes
   
-  hosts: servers
+  hosts: servers2
 
   vars:
     openldap_version: "2.6.6"
     openldap_url: "https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-{{ openldap_version }}.tgz"
     install_dir: "/opt/openldap-{{ openldap_version }}"
     tmp_dir: "/tmp/openldap-{{ openldap_version }}"
-    slapd_port: 389  # 기본 LDAP 포트
+    slapd_port: 389
     rootdn: "cn=admin,dc=my-domain,dc=com"
-    rootpw: "{SSHA}eW91cnBhc3N3b3JkaGVyZQ=="  # 생성한 SSHA 해시된 비밀번호
+    rootpw: "cloud1234"
     
   tasks:
     - name: Update apt cache
@@ -57,6 +57,17 @@
       command:
         cmd: "make install"
         chdir: "{{ tmp_dir }}"
+
+    - name: Ensure required directories exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - "{{ install_dir }}/etc/openldap/schema"
+        - "{{ install_dir }}/var/run"
+        - "{{ install_dir }}/libexec/openldap"
+        - "{{ install_dir }}/var/openldap-data"
 
     - name: Copy slapd.conf template
       template:

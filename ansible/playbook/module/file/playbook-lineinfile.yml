@@ -1,0 +1,29 @@
+- name: Ansible lineinfile 모듈 예제
+  hosts: servers
+  gather_facts: yes
+  become: no
+
+  tasks: 
+    - name: 파일에 해당 라인이 있는가?
+      lineinfile:
+        path: /etc/hosts
+        line: "127.0.0.1 localhost"
+        state: present
+
+    - name: 파일에 해당 라인 제거
+      lineinfile:
+        path: /etc/hosts
+        regexp: "^127.0.0.1 localhost$"
+        state: absent
+    
+    - name: 새로운 라인 추가
+      lineinfile:
+        path: /etc/hosts
+        line: "127.0.0.1 localhostanme"
+        insertbefore: "BOF"
+
+    - name: 새로운 라인 추가
+      lineinfile:
+        path: /etc/hosts
+        line: "127.0.1.1 myhostname"
+        insertafter: "^127.0.0.1 localhost$"

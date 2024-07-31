@@ -1,0 +1,14 @@
+- hosts: servers
+  become: yes
+  tasks:
+    - name: Install Grafana
+      apt:
+        name: grafana
+        state: latest
+        update_cache: yes
+
+    - name: Start and enable Grafana
+      systemd:
+        name: grafana-server
+        enabled: yes
+        state: started

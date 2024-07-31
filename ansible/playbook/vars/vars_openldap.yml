@@ -1,0 +1,4 @@
+openldap_version: 2.6.6
+openldap_url: "https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-{{ openldap_version }}.tgz"
+openldap_install_dir: /usr/local/openldap
+openldap_conf_dir: /etc/openldap

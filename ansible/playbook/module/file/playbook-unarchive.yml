@@ -1,0 +1,26 @@
+- name: Ansible archive 모듈 예제
+  hosts: servers
+  gather_facts: yes
+  become: no
+
+  tasks: 
+    - name: 압축 해제
+      unarchive:
+        src: "/tmp/test2/test1.tar.gz"
+        dest: "/tmp/test3/"
+        owner: root
+        group: root
+        mode: '0755'
+        remote_src: yes
+    
+    - name: 로컬파일을 원격 호스트에 업로드 후 압축해제
+      unarchive:
+        src: /tmp/test2/test2.tar.gz
+        dest: /tmp/test3/
+
+    - name: 파일 존재 여부에 따라 압축해제 생략
+      unarchive:
+        src: /tmp/test2/test3.tar.gz
+        dest: /tmp/test3/
+        creates: /tmp/test3
+        remote_src: yes

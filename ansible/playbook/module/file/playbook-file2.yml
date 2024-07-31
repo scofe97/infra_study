@@ -1,4 +1,4 @@
-- name: 파일 링크
+- name: Ansible file2 모듈 예제
   hosts: servers
   gather_facts: yes
   become: no

@@ -1,0 +1,30 @@
+- name: Ansible stat 모듈 예제
+  hosts: servers
+  gather_facts: yes
+  become: no
+
+  tasks: 
+    - name: /etc/hosts 파일 확인
+      stat:
+        path: /etc/
+      register: file_info
+
+    - name: 상세 정보 확인
+      debug:
+        msg:
+          - "File exists: {{ file_info.stat.exists }}"
+          - "File path: {{ file_info.stat.path }}"
+          - "File size: {{ file_info.stat.size }}"
+
+          - "File uid: {{ file_info.stat.uid }}"
+          - "File inode: {{ file_info.stat.inode }}"
+          - "File islnk {{ file_info.stat.islnk }}"
+
+          - "File pw_name {{ file_info.stat.pw_name }}"
+          - "File gr_name {{ file_info.stat.gr_name }}"
+          - "File uid {{ file_info.stat.uid }}"
+          - "File gid {{ file_info.stat.gid }}"
+
+          - "File atime: {{ file_info.stat.atime }}"
+          - "File mtime: {{ file_info.stat.mtime }}"
+          - "File ctime: {{ file_info.stat.ctime }}"

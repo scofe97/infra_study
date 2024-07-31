@@ -1,0 +1,30 @@
+- name: Ansible archive 모듈 예제
+  hosts: servers
+  gather_facts: yes
+  become: no
+
+  tasks: 
+    - name: 디렉토리 압축
+      archive:
+        path: "/tmp/test"
+        dest: "/tmp/test2/test1.tar.gz"
+        format: gz
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: 파일 압축
+      archive:
+        path: 
+          - "/tmp/test/test.text"
+          - "/tmp/test/test2.text"
+        dest: "/tmp/test2/test2.tar.gz"
+        format: gz
+
+    
+    - name: 압축후 원본 파일 삭제
+      archive:
+        path: "/tmp/test/test3.text"
+        dest: "/tmp/test2/test3.tar.gz"
+        format: gz
+        remove: yes

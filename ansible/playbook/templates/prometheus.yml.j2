@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s  # 데이터 수집 주기
+  evaluation_interval: 15s  # 규칙 평가 주기
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - localhost:9093  # Alertmanager 주소
+
+rule_files:
+  - "alert_rules.yml"  # 경고 규칙 파일 위치
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']  # Prometheus 자체 모니터링
+
+  - job_name: 'node'
+    scrape_interval: 5s  # Node Exporter 스크레이핑 주기
+    static_configs:
+      - targets: ['{{ ansible_host }}:9100']  # Node Exporter 주소

@@ -1,0 +1,21 @@
+- name: Ansible stat 모듈 예제
+  hosts: servers
+  gather_facts: yes
+  become: no
+
+  tasks: 
+    - name: 파일에 블록추가
+      blockinfile:
+        path: /etc/test.config
+        block: |
+          Line 1 of the block
+          Line 2 of the block
+        marker: "## blockinfile ##"
+
+    - name: 파일의 특정 라인에 블록추가
+      blockinfile:
+        path: /etc/test.config
+        block: |
+          Line 1 of the block spc
+          Line 2 of the block spc
+        insertafter: "nice "

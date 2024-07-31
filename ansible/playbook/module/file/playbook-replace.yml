@@ -1,0 +1,17 @@
+- name: Ansible replace 모듈 예제
+  hosts: servers
+  gather_facts: yes
+  become: no
+
+  tasks: 
+    - name: 파일의 특정 문자열 수정
+      replace:
+        path: /etc/test.config
+        regexp: 'nice'
+        replace: 'hello'
+    
+    - name: 파일의 여러 문자열을 수정
+      replace:
+        path: /etc/test.config
+        regexp: '^hello'
+        replace: "hello change"

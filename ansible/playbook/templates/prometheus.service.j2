@@ -1,0 +1,14 @@
+[Unit]
+Description=Prometheus Server
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network.target  # 네트워크 서비스가 활성화된 후에 시작
+
+[Service]
+User=prometheus  # Prometheus 서비스를 실행할 사용자
+Restart=on-failure  # 실패 시 재시작
+ExecStart=/opt/prometheus-2.37.0.linux-amd64/prometheus \
+  --config.file=/opt/prometheus-2.37.0.linux-amd64/prometheus.yml \
+  --storage.tsdb.path=/opt/prometheus-2.37.0.linux-amd64/data  # 실행 명령
+
+[Install]
+WantedBy=multi-user.target  # 시스템 다중 사용자 대상에서 시작

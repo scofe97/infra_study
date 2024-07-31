@@ -1,4 +1,4 @@
-- name: 파일 생성 테스트
+- name: Ansible file1 모듈 예제
   hosts: servers
   gather_facts: yes
   become: no
